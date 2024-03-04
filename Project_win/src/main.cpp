@@ -32,7 +32,7 @@ using namespace std;
 #define _Z_NEAR                     0.001f
 #define _Z_FAR                      100.0f
 
-#define NUMBER_OF_VERTICES          360
+#define NUMBER_OF_VERTICES          1000
 #define M_PI                        3.1415926535
 
 
@@ -452,8 +452,7 @@ int main()
     // todo: change to equation for harmonograph
     // variables : amplitude (x,y), phase (x,y), damping, frequency
     vector<float> vertices;
-    float x, y;
-    int time;
+    float x, y, time;
     const float phase = M_PI / 2;
     const float amplitude = 1.0f;
     const float damping = 0.02f;
@@ -472,7 +471,7 @@ int main()
 
     //amplitude_1, amplitude_2, amplitude_3, amplitude_4
 
-    for (time = 0; time < NUMBER_OF_VERTICES; time += 1)
+    for (time = 0; time < NUMBER_OF_VERTICES; time += 0.01)
     {
         vertices.push_back(amplitude * sin(time*freq1+phase1)*exp(-damping1*time) + amplitude * sin(time*freq2+phase2)*exp(-damping2*time));
         vertices.push_back(amplitude * sin(time*freq3+phase3)*exp(-damping3*time) + amplitude * sin(time*freq4+phase4)*exp(-damping4*time));

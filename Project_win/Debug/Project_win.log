@@ -1,21 +1,22 @@
 ﻿  main.cpp
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(235,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(253,26): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(254,26): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(262,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(263,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(265,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(266,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(273,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(274,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(276,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(277,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(245,16): warning C4101: 'dy': unreferenced local variable
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(245,12): warning C4101: 'dx': unreferenced local variable
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(457,30): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(470,23): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(471,27): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(489,22): warning C4018: '<': signed/unsigned mismatch
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(455,14): warning C4101: 'y': unreferenced local variable
-C:\Users\dianm\Documents\T6\GV\Project\Project_win\src\main.cpp(455,11): warning C4101: 'x': unreferenced local variable
-  Project_win.vcxproj -> C:\Users\dianm\Documents\T6\GV\Project\Project_win\Debug\Project_win.exe
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(235,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(253,26): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(254,26): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(262,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(263,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(265,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(266,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(273,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(274,26): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(276,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(277,30): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(245,16): warning C4101: 'dy': unreferenced local variable
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(245,12): warning C4101: 'dx': unreferenced local variable
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(456,30): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(469,23): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(470,27): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(474,59): warning C4305: '+=': truncation from 'double' to 'float'
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(488,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(455,14): warning C4101: 'y': unreferenced local variable
+C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\src\main.cpp(455,11): warning C4101: 'x': unreferenced local variable
+  Project_win.vcxproj -> C:\Users\dianm\Documents\T6\GV\Project\2024_GV\Project_win\Debug\Project_win.exe
