@@ -32,7 +32,7 @@ using namespace std;
 #define _Z_NEAR                     0.001f
 #define _Z_FAR                      100.0f
 
-#define NUMBER_OF_VERTICES          1000
+#define NUMBER_OF_VERTICES          10000 // MSAA looks good with 6000
 #define M_PI                        3.1415926535
 
 
@@ -49,8 +49,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos);
 
 // Window size
-unsigned int winWidth  = 800;
-unsigned int winHeight = 800;
+unsigned int winWidth  = 1200;
+unsigned int winHeight = 1200;
 
 // Camera
 glm::vec3 camera_position = glm::vec3 (0.0f, 0.0f, 2.5f);
@@ -66,28 +66,8 @@ float prevMouseX;
 float prevMouseY;
 glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-// vertex shader source
-// ------------------------------
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"layout (location = 1) in vec3 aColor;\n"
-"out vec3 ourColor;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos, 1.0);\n"
-"   ourColor = aColor;\n"
-"}\0";
-
-// fragment shader source
-// ------------------------------
-const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
-"in vec3 ourColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(ourColor, 1.0f);\n"
-"}\n\0";
-
+// Colour
+glm::vec3 meshColor;
 
 
 ///=========================================================================================///
@@ -96,6 +76,40 @@ const char* fragmentShaderSource = "#version 330 core\n"
 
 
 
+
+// vertex shader source
+// ------------------------------
+const char* vertexShaderSource = "#version 330 core\n"
+"uniform mat4 model;\n"
+"uniform mat4 view;\n"
+"uniform mat4 projection;\n"
+"uniform vec3 meshColor;\n"
+"layout (location = 0) in vec3 aPos;\n"
+"out vec3 ocolor;\n"
+"void main()\n"
+"{\n"
+"   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
+"	ocolor = meshColor;\n"
+"}\n";
+
+// fragment shader source
+// ------------------------------
+const char* fragmentShaderSource = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"in vec3 oColor;\n"
+"void main()\n"
+"{\n"
+"   FragColor = vec4(oColor, 1.0f);\n"
+"}\n\0";
+
+// Mesh color table
+glm::vec3 colorTable[4] =
+{
+   glm::vec3(0.6, 1.0, 0.6),
+   glm::vec3(1.0, 0.6, 0.6),
+   glm::vec3(0.6, 0.6, 1.0),
+   glm::vec3(1.0, 1.0, 0.6)
+};
 
 
 
@@ -298,24 +312,6 @@ void cursor_pos_callback(GLFWwindow* window, double mouseX, double mouseY)
 
 }
 
-//void harmonograph() {
-//
-//    GLdouble x, y, angle;
-//
-//    glClear(GL_COLOR_BUFFER_BIT);
-//
-//    glBegin(GL_POINTS);
-//    for (angle = 0.0f; angle <= (2.0f * glm::pi<float>()); angle += 0.01f)
-//    {
-//        x = 50.0f * sin(angle);
-//        y = 50.0f * cos(angle);
-//        glVertex3f(x, y, 0.0f);
-//    }
-//    glEnd();
-//
-//}
-
-
 
 
 ///=========================================================================================///
@@ -333,6 +329,8 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // activate multi-sampling (smoothen lines)
+    glfwWindowHint(GLFW_SAMPLES, 8);
     
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -368,6 +366,9 @@ int main()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
+
+    // configure multi-sampling
+    glEnable(GL_MULTISAMPLE);
 
     //// build and compile our shader program
     //// ------------------------------------
@@ -421,20 +422,6 @@ int main()
     const float radius = 0.75f;
     const float k = 4;*/
 
-    // circle eqn
-    //for (angle = 0.0f; angle < (2.0f * M_PI); angle += ((2.0f * M_PI) / NUMBER_OF_VERTICES))
-    //{
-    //    vertices.push_back(radius * sin(angle)); //radius is 0.75
-    //    vertices.push_back(radius * cos(angle));
-    //    vertices.push_back(0.0f);
-
-    //    // colours
-    //    vertices.push_back(0.2f);
-    //    vertices.push_back(0.1f);
-    //    vertices.push_back(1.0f);
-
-    //}
-
     // polar rose eqn
     //for (angle = 0.0f; angle < (2.0f * M_PI); angle += ((2.0f * M_PI) / NUMBER_OF_VERTICES))
     //{
@@ -449,49 +436,46 @@ int main()
 
     //}
 
-    // todo: change to equation for harmonograph
-    // variables : amplitude (x,y), phase (x,y), damping, frequency
     vector<float> vertices;
-    float x, y, time;
+    float x, y, z, time;
     const float phase = M_PI / 2;
-    const float amplitude = 1.0f;
+    const float amplitude = 0.5f;
     const float damping = 0.02f;
     const float freq1 = 3.001f,
         freq2 = 2.0f,
         freq3 = 3.0f,
         freq4 = 2.0f,
+        freq5 = 3.0f,
+        freq6 = 2.0f,
         damping1 = 0.004f,
         damping2 = 0.0065f,
         damping3 = 0.008f,
         damping4 = 0.019f,
+        damping5 = 0.012f,
+        damping6 = 0.005f,
         phase1 = 0,
         phase2 = 0,
         phase3 = M_PI / 2,
-        phase4 = 3 * M_PI / 2;
-
-    //amplitude_1, amplitude_2, amplitude_3, amplitude_4
+        phase4 = 3 * M_PI / 2,
+        phase5 = M_PI / 4,
+        phase6 = 2 * M_PI;
 
     for (time = 0; time < NUMBER_OF_VERTICES; time += 0.01)
     {
         vertices.push_back(amplitude * sin(time*freq1+phase1)*exp(-damping1*time) + amplitude * sin(time*freq2+phase2)*exp(-damping2*time));
         vertices.push_back(amplitude * sin(time*freq3+phase3)*exp(-damping3*time) + amplitude * sin(time*freq4+phase4)*exp(-damping4*time));
-        vertices.push_back(0.0f);
-
-        // colours
-        vertices.push_back(0.2f);
-        vertices.push_back(0.1f);
-        vertices.push_back(1.0f);
-
+        vertices.push_back(amplitude * sin(time * freq5 + phase5) * exp(-damping5 * time) + amplitude * sin(time * freq6 + phase6) * exp(-damping6 * time)); //push_back(0.0f);
     }
 
-
-   for (int i = 0; i < vertices.size(); i++) {
+    // For debugging purposes
+   /*for (int i = 0; i < vertices.size(); i++) {
         std::cout << vertices[i] << std::endl;
-   }
+   }*/
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
+
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
     glBindVertexArray(VAO);
 
@@ -501,9 +485,6 @@ int main()
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
 
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
@@ -526,9 +507,19 @@ int main()
         glClearColor(0.95f, 0.95f, 0.95f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // draw circle
+        // view/projection transformations
+        projection = glm::perspective(glm::radians(camera_fovy), (float)winWidth / (float)winHeight, _Z_NEAR, _Z_FAR);
+        glm::mat4 view = glm::lookAt(camera_position, camera_target, camera_up);
+
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, &projection[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, &view[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &modelMatrix[0][0]);
+        glUniform3fv(glGetUniformLocation(shaderProgram, "meshColor"), 1, &colorTable[0][0]);
+        glUniform3fv(glGetUniformLocation(shaderProgram, "viewPos"), 1, &camera_position[0]);
+
+        // render harmonograph
         glBindVertexArray(VAO);
-        glDrawArrays(GL_LINE_LOOP, 0, NUMBER_OF_VERTICES); // try GL_LINES and other primitives...
+        glDrawArrays(GL_LINE_LOOP, 0, NUMBER_OF_VERTICES); // original primitive is GL_LINE_LOOP
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -540,7 +531,6 @@ int main()
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    //glDeleteProgram(myShader.ID);
     glDeleteProgram(shaderProgram);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
