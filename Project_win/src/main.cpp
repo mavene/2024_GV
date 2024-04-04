@@ -83,11 +83,17 @@ const char* vertexShaderSource = "#version 330 core\n"
 "uniform mat4 projection;\n"
 "uniform vec3 meshColor;\n"
 "layout (location = 0) in vec3 aPos;\n"
+"layout (location = 1) in vec3 aNormal;\n"
 "out vec3 ocolor;\n"
+"out VS_OUT {\n"
+"   vec3 normal;\n"
+"} vs_out;\n"
 "void main()\n"
 "{\n"
 "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
-"	ocolor = meshColor;\n"
+"	mat3 normalMatrix = mat3(transpose(inverse(view*model)));\n"
+"   ocolor = meshColor;\n"
+"   vs_out.normal = normalize(vec3(vec4(normalMatrix * aNormal, 0.0)));\n"
 "}\n";
 
 // fragment shader source
@@ -100,14 +106,24 @@ const char* fragmentShaderSource = "#version 330 core\n"
 "   FragColor = vec4(oColor, 1.0f);\n"
 "}\n\0";
 
-//
-//const char* geometryShaderSource = "#version 330 core\n"
-//"void main() {\n"
-//"{\n"
-//"   gl_Position = smth;\n"
-//"   EmitVertex();\n"
-//"   EndPrimitive();\n"
-//"}\n";
+const char* geometryShaderSource = "#version 330 core\n"
+"layout (points) in;\n"
+"layout (line_strip, max_vertices = 6) out;\n"
+"in VS_OUT {\n"
+"   vec3 normal;\n"
+"} gs_in[];\n"
+"const float MAGNITUDE = 0.4;\n"
+"uniform mat4 projection;\n"
+"void GenerateLine(int index) {\n"
+"   gl_Position = projection * gl_in[index].gl_Position;\n"
+"   EmitVertex();\n"
+"   gl_Position = projection * (gl_in[index].gl_Position + vec4(gs_in[index].normal, 0.0) * MAGNITUDE);\n"
+"   EmitVertex();\n"
+"   EndPrimitive();\n"
+"}\n"
+"void main() {\n"
+"    GenerateLine(0); // one vertex normal\n"
+"}\n";
 
 // Mesh color table
 glm::vec3 colorTable[4] =
