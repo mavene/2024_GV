@@ -75,7 +75,7 @@ glm::vec3 meshColor;
 
 
 
-// vertex shader source
+// vertex shader sources
 // ------------------------------
 const char* vertexShaderSource = "#version 330 core\n"
 "uniform mat4 model;\n"
@@ -83,20 +83,28 @@ const char* vertexShaderSource = "#version 330 core\n"
 "uniform mat4 projection;\n"
 "uniform vec3 meshColor;\n"
 "layout (location = 0) in vec3 aPos;\n"
-"layout (location = 1) in vec3 aNormal;\n"
 "out vec3 ocolor;\n"
-"out VS_OUT {\n"
-"   vec3 normal;\n"
-"} vs_out;\n"
 "void main()\n"
 "{\n"
 "   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
-"	mat3 normalMatrix = mat3(transpose(inverse(view*model)));\n"
 "   ocolor = meshColor;\n"
-"   vs_out.normal = normalize(vec3(vec4(normalMatrix * aNormal, 0.0)));\n"
 "}\n";
 
-// fragment shader source
+const char* vertexShaderSource2 = "#version 330 core\n"
+"layout(location = 0) in vec3 aPos;\n"
+"layout(location = 1) in vec3 aNormal;\n"
+"out VS_OUT{\n"
+"    vec3 normal;\n"
+"} vs_out;\n"
+"uniform mat4 view;\n"
+"uniform mat4 model;\n"
+"void main() {\n"
+"   mat3 normalMatrix = mat3(transpose(inverse(view * model)));\n"
+"   vs_out.normal = vec3(vec4(normalMatrix * aNormal, 0.0));\n"
+"   gl_Position = view * model * vec4(aPos, 1.0);\n"
+"}\n";
+
+// fragment shader sources
 // ------------------------------
 const char* fragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
@@ -106,13 +114,15 @@ const char* fragmentShaderSource = "#version 330 core\n"
 "   FragColor = vec4(oColor, 1.0f);\n"
 "}\n\0";
 
+// geometry shader source
+// ------------------------------
 const char* geometryShaderSource = "#version 330 core\n"
 "layout (points) in;\n"
-"layout (line_strip, max_vertices = 6) out;\n"
+"layout (line_strip, max_vertices = 2) out;\n"
 "in VS_OUT {\n"
 "   vec3 normal;\n"
 "} gs_in[];\n"
-"const float MAGNITUDE = 0.4;\n"
+"const float MAGNITUDE = 0.15;\n"
 "uniform mat4 projection;\n"
 "void GenerateLine(int index) {\n"
 "   gl_Position = projection * gl_in[index].gl_Position;\n"
@@ -343,8 +353,6 @@ void cursor_pos_callback(GLFWwindow* window, double mouseX, double mouseY)
 
 int main()
 {
-    //LoadInput();
-    //myModel.computeTransforms();
 
     // glfw: initialize and configure
     // ------------------------------
@@ -397,7 +405,7 @@ int main()
     //// ------------------------------------
     // vertex shader
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glShaderSource(vertexShader, 1, &vertexShaderSource2, NULL);
     glCompileShader(vertexShader);
 
     // check for shader compile errors
@@ -424,23 +432,23 @@ int main()
     }
 
     // geometry shader
-    //unsigned int geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
-    //glShaderSource(geometryShader, 1, &geometryShaderSource, NULL);
-    //glCompileShader(geometryShader);
+    unsigned int geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+    glShaderSource(geometryShader, 1, &geometryShaderSource, NULL);
+    glCompileShader(geometryShader);
 
-    //// check for shader compile errors
-    //glGetShaderiv(geometryShader, GL_COMPILE_STATUS, &success);
-    //if (!success)
-    //{
-    //    glGetShaderInfoLog(geometryShader, 512, NULL, infoLog);
-    //    std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n" << infoLog << std::endl;
-    //}
+    // check for shader compile errors
+    glGetShaderiv(geometryShader, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(geometryShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
 
     // link shaders
     unsigned int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
-    //glAttachShader(shaderProgram, geometryShader);
+    glAttachShader(shaderProgram, geometryShader);
     glLinkProgram(shaderProgram);
 
     // check for linking errors
@@ -451,6 +459,7 @@ int main()
     }
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    glDeleteShader(geometryShader);
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -616,7 +625,7 @@ int main()
 
         // render harmonograph
         glBindVertexArray(VAO);
-        glDrawArrays(GL_LINE_LOOP, 0, NUMBER_OF_VERTICES); // original primitive is GL_LINE_LOOP
+        glDrawArrays(GL_POINTS, 0, NUMBER_OF_VERTICES); // original primitive is GL_LINE_LOOP
   
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
