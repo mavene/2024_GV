@@ -1,9 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 //
 //
-//  Assignment 2 of SUTD Course 50.017
-//
-//    Hierarchical Skeleton
+//  
 //
 //
 //
@@ -101,6 +99,15 @@ const char* fragmentShaderSource = "#version 330 core\n"
 "{\n"
 "   FragColor = vec4(oColor, 1.0f);\n"
 "}\n\0";
+
+//
+//const char* geometryShaderSource = "#version 330 core\n"
+//"void main() {\n"
+//"{\n"
+//"   gl_Position = smth;\n"
+//"   EmitVertex();\n"
+//"   EndPrimitive();\n"
+//"}\n";
 
 // Mesh color table
 glm::vec3 colorTable[4] =
@@ -400,10 +407,24 @@ int main()
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
 
+    // geometry shader
+    //unsigned int geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+    //glShaderSource(geometryShader, 1, &geometryShaderSource, NULL);
+    //glCompileShader(geometryShader);
+
+    //// check for shader compile errors
+    //glGetShaderiv(geometryShader, GL_COMPILE_STATUS, &success);
+    //if (!success)
+    //{
+    //    glGetShaderInfoLog(geometryShader, 512, NULL, infoLog);
+    //    std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n" << infoLog << std::endl;
+    //}
+
     // link shaders
     unsigned int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
+    //glAttachShader(shaderProgram, geometryShader);
     glLinkProgram(shaderProgram);
 
     // check for linking errors
@@ -436,7 +457,7 @@ int main()
 
     //}
 
-    vector<float> vertices;
+    vector<float> positions, vertices;
     float x, y, z, time;
     const float phase = M_PI / 2;
     const float amplitude = 0.5f;
@@ -462,10 +483,66 @@ int main()
 
     for (time = 0; time < NUMBER_OF_VERTICES; time += 0.01)
     {
-        vertices.push_back(amplitude * sin(time*freq1+phase1)*exp(-damping1*time) + amplitude * sin(time*freq2+phase2)*exp(-damping2*time));
-        vertices.push_back(amplitude * sin(time*freq3+phase3)*exp(-damping3*time) + amplitude * sin(time*freq4+phase4)*exp(-damping4*time));
-        vertices.push_back(amplitude * sin(time * freq5 + phase5) * exp(-damping5 * time) + amplitude * sin(time * freq6 + phase6) * exp(-damping6 * time)); //push_back(0.0f);
+        positions.push_back(amplitude * sin(time*freq1+phase1)*exp(-damping1*time) + amplitude * sin(time*freq2+phase2)*exp(-damping2*time));
+        positions.push_back(amplitude * sin(time*freq3+phase3)*exp(-damping3*time) + amplitude * sin(time*freq4+phase4)*exp(-damping4*time));
+        positions.push_back(amplitude * sin(time * freq5 + phase5) * exp(-damping5 * time) + amplitude * sin(time * freq6 + phase6) * exp(-damping6 * time)); //push_back(0.0f);
     }
+
+    float x1, x2, x3, y1, y2, y3, z1, z2, z3, nx, ny, nz;
+    float min_x = 0,
+        min_y = 0,
+        min_z = 0,
+        max_x = 0,
+        max_y = 0,
+        max_z = 0;
+
+    for (int i = 0; i < positions.size(); i = i + 9) {
+            // Retrieve 3 point coords
+            x1 = positions.at(i);
+            y1 = positions.at(i + 1);
+            z1 = positions.at(i + 2);
+            x2 = positions.at(i + 3);
+            y2 = positions.at(i + 4);
+            z2 = positions.at(i + 5);
+            x3 = positions.at(i + 6);
+            y3 = positions.at(i + 7);
+            z3 = positions.at(i + 8);
+
+            // Assemble points into vecs
+            glm::vec3 pt1 = glm::vec3(x1, y1, z1);
+            glm::vec3 pt2 = glm::vec3(x2, y2, z2);
+            glm::vec3 pt3 = glm::vec3(x3, y3, z3);
+            glm::vec3 norm = glm::vec3(1.0f);
+
+            // Calculate normals
+            norm = glm::normalize(glm::cross(pt3-pt2, pt1-pt2)); // cross product
+            nx = norm[0];
+            ny = norm[1];
+            nz = norm[2];
+
+            // Update vertices with normals
+            vertices.push_back(x1);
+            vertices.push_back(y1);
+            vertices.push_back(z1);
+            vertices.push_back(nx);
+            vertices.push_back(ny);
+            vertices.push_back(nz);
+            vertices.push_back(x2);
+            vertices.push_back(y2);
+            vertices.push_back(z2);
+            vertices.push_back(nx);
+            vertices.push_back(ny);
+            vertices.push_back(nz);
+            vertices.push_back(x3);
+            vertices.push_back(y3);
+            vertices.push_back(z3);
+            vertices.push_back(nx);
+            vertices.push_back(ny);
+            vertices.push_back(nz);
+
+        }
+
+
 
     // For debugging purposes
    /*for (int i = 0; i < vertices.size(); i++) {
@@ -482,9 +559,13 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
-    // position attribute
+    // vertex position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    // vertex normals attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), ((void*)(3 * sizeof(float))));
+    glEnableVertexAttribArray(1);
 
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
@@ -520,7 +601,7 @@ int main()
         // render harmonograph
         glBindVertexArray(VAO);
         glDrawArrays(GL_LINE_LOOP, 0, NUMBER_OF_VERTICES); // original primitive is GL_LINE_LOOP
-
+  
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
